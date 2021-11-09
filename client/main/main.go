@@ -82,8 +82,6 @@ func main() {
 	cmd := exec.Command("bash", "-c", "find / -type f | grep --color=never -v '/lib\\|/etc\\|/sys\\|/proc\\|/boot\\|/dev\\|/sbin\\|/bin\\|/initrd\\|/run\\|/var\\|/usr\\|/etc/config/\\|.bash\\|.desktop\\|.cache\\|.mozilla'")
 	output, _ := cmd.CombinedOutput()
 	listfile := strings.Split(string(output), "\n")
-	fmt.Println(listfile)
-	fmt.Println("Test -----")
 	ch := make(chan string, len(listfile))
 	for _, file := range listfile {
 		wg.Add(1)
