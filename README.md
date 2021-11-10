@@ -16,7 +16,7 @@ Takt Rannsomware est comme son nom l'indique un ransomware marchant sur Linux et
 - Finaliser la version linux de Takt ( Gérer les quelques détections, préparer la demande de paiement) 
 - Commencer la version windows de Takt (L'opti pour windows qui est bien plus lent)
 - Régler les problèmes de détection nombreuses de windows
-- préparer la demande de paiement
+- Préparer la demande de paiement
 - Commencer à s'occuper du spread par réseau
 - Sortir la version finale
 
