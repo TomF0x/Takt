@@ -4,6 +4,7 @@ from discord_webhook import DiscordWebhook
 
 ServerSideSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 ServerSideSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
 try:
     ServerSideSocket.bind(("139.59.147.33", 25))
 except socket.error as e:
