@@ -18,8 +18,6 @@ while True:
         data, addr = ServerSideSocket.recvfrom(2048)
         print(addr)
     except KeyboardInterrupt:
-        print("Server is closing")
-        ServerSideSocket.close()
         exit()
     try:
         data = data.decode()
