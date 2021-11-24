@@ -4,7 +4,7 @@
 
 **Présentation du projet :**
 
-Takt Rannsomware est comme son nom l'indique un ransomware marchant sur Linux et Windows, il crypte l'entiéreté des informations personelles de la victime avec du AES 256. Le ransomware se spread aussi par le réseau afin d'avoir toujours plus de victime.
+Takt Rannsomware est comme son nom l'indique un ransomware marchant sur Linux et Windows, il chiffre l'entiéreté des informations personelles de la victime avec du AES 256. Le ransomware se spread aussi par le réseau afin d'avoir toujours plus de victime.
 
 **Les techno :**
 
