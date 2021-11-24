@@ -9,7 +9,9 @@ try:
 except socket.error as e:
     print(str(e))
 
+
 print('Server is ON')
+
 
 while True:
     try:
