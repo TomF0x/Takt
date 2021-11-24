@@ -76,7 +76,6 @@ func DeCrypt(filename string, ch chan string) {
 }
 
 func main() {
-	//cmd := exec.Command("bash", "-c", "find / -type f -size -200M ! -path \"/lib/*\" ! -path \"/etc/*\" ! -path \"/sys/*\" ! -path \"/proc/*\" ! -path \"/boot/*\" ! -path \"/dev/*\" ! -path \"/sbin/*\" ! -path \"/bin/*\" ! -path \"/initrd/*\" ! -path \"/run/*\" ! -path \"/var/*\" ! -path \"/usr/*\" ! -path \"/snap/*\" ! -path \"*.bash*\" ! -path \"*.desktop*\" ! -path \"*.cache*\" ! -path \"*.mozilla*\" 2> /dev/null\n")
 	var listfile []string
 	switch runtime.GOOS {
 	case "windows":
