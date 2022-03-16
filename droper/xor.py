@@ -1,5 +1,5 @@
 import sys
-KEY = "d"
+KEY = "c"
 
 def xor(data, key):
 
