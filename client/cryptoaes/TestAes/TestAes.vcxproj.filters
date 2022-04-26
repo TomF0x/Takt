@@ -19,4 +19,23 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="binks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imports.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="defs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="kernel32.asm">
+      <Filter>Header Files</Filter>
+    </MASM>
+  </ItemGroup>
 </Project>
