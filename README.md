@@ -1,29 +1,46 @@
-# Takt Ransomware
+# Takt Ransomware 🏴‍☠️
+
+![](https://cdn.discordapp.com/attachments/497025479233241099/969994140983115856/unknown.png)
 
 ---
 
-**Présentation du projet :**
+# Documentation 👨🏼‍🏫
 
-Takt Rannsomware est comme son nom l'indique un ransomware marchant sur Linux et Windows, il chiffre l'entiéreté des informations personelles de la victime avec du AES 256. Le ransomware se spread aussi par le réseau afin d'avoir toujours plus de victime.
+**Sommaire :**
 
-**Les techno :**
+[I. Prérequis](https://github.com/TomF0x/Takt/blob/master/Documentation/Pr%C3%A9requis.md)
 
-- Language : Golang (ransomware), Python (serveur side pour recevoir la clé, les informations sur la victime par socket)
-- VirtualBox/VmWare (pour virtualiser les victimes)
+[II. Installation](https://github.com/TomF0x/Takt/blob/master/Documentation/Installation.md)
 
-**Les étapes :**
+[III. Utilisation](https://github.com/TomF0x/Takt/blob/master/Documentation/Utilisation.md)
 
-- Finaliser la version linux de Takt ( Gérer les quelques détections, préparer la demande de paiement) 
-- Commencer la version windows de Takt (L'opti pour windows qui est bien plus lent)
-- Régler les problèmes de détection nombreuses de windows
-- Préparer la demande de paiement
-- Commencer à s'occuper du spread par réseau
-- Sortir la version finale
+[IV. Analyse](https://github.com/TomF0x/Takt/blob/master/Documentation/Analyse.md)
 
-**Requirements :**
+**Explication 📜 :**
 
-- Un vps pour les info victime
+Takt Ransomware est comme son nom l'indique un rançonlogiciel marchant sur les distributions **GNU/Linux** ainsi que sur **Windows**, il chiffre l'entièreté des informations personnelles de la victime avec du **AES-256**, laissant ainsi le système d’exploitation intacte, il est donc qualifié de Ransomware Crypto (Voir ci-dessus).
 
-**Difficulté technique :**
+**AES-256** : Le chiffrement AES-256 est une méthode de chiffrement symétrique. Cela veut dire que la clé de chiffrement est la même que la clé de déchiffrement à la différence d’un chiffrement asymétrique. La clé fait comme son nom l’indique **256 bits**.
 
-Actuellement aucune.
+On a décidé d’utiliser les langages de programmation suivant :
+
+- Python (VPS)
+- Go Lang (GNU/Linux)
+- C++ (Windows)
+
+On utilise aussi un **VPS (Serveur dédié virtuel)** par lequel on fait transiter par socket les informations de la victime ainsi que la clé permettant le déchiffrement des données personnelles.
+Lorsqu’une personne est infectée, on a décidé d’envoyer une notification par **webhook discord**, nous permettant de suivre qui a été infecté et à quel moment, avec en plus de son **IP**, son **Hostname** et enfin évidemment la **clé** permettant le déchiffrement des données.
+
+---
+
+**WinSAT exploit 📝 :**
+
+WinSAT va servir à bypass l’**UAC** avec du **DLL Hijacking** et qui va utiliser un dll (contiendra notre script) qui chiffrera et qui fera du **DLL Proxying**. Cet exploit se lance à l’aide d’un script **powershell**.
+
+Le DLL Hijacking c’est tout simplement faire qu’une **application légitime** (aux yeux de Windows) va charger une **DLL**.
+
+C'est un script powershell (un **.ps1**) qui va s’occuper de l’exploit, le script va créer un faux répertoire "**C:\Windows\System32**” qu’on va appeler “**C:\Windows \System32**”, et à l’intérieur on va copier notre application légitime, donc **WinSAT**. Ensuite on va télécharger notre DLL à l’intérieur de ce faux répertoire, puis WinSAT va le lancer. Le DLL s’occupera alors de tout.
+
+**Exploit :** https://github.com/b4keSn4ke/Invoke-WinSATBypass
+
+
