@@ -18,7 +18,7 @@ go run main.go
 ou 
 
 ```bash
-go build main.go
+go build -tags netgo ./main.go
 ./main
 ```
 
