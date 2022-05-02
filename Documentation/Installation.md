@@ -36,6 +36,6 @@ Pour build la lib CryptoPP, suivre ce tuto : https://www.ired.team/miscellaneous
 
 ---
 
-**➔ Suite :** [Installation](https://github.com/TomF0x/Takt/blob/master/Documentation/Installation.md)
+**➔ Suite :** [Utilisation](https://github.com/TomF0x/Takt/blob/master/Documentation/Utilisation.md)
 
 **➔ Informations :** [README](https://github.com/TomF0x/Takt/blob/master/README.md)
