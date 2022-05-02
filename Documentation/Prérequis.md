@@ -6,6 +6,7 @@
 - Stockage : X
 - Un user pouvant se sudo pour GNU/Linux, n'importe pour Windows
 - Avoir visual studio pour build le DLL, ainsi que build la lib cryptoPP
+- Avoir Go Lang pour la version GNU/Linux
 
 Visual Studio : https://docs.microsoft.com/en-us/visualstudio/install/install-visual-studio?view=vs-2022
 
